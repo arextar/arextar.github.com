@@ -1,0 +1,5 @@
+.post
+  h2
+    a(href='#/' + post.id)= post.meta.title
+    span.date= post.meta.date
+  div!= full ? post.full : post.peek
