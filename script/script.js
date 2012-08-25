@@ -11,7 +11,7 @@
   search_worker.on('populate', function (post) {
     var div = document.createElement('div')
     div.className = 'result'
-    div.innerHTML = '<h4><a href=#>' + post.title + '</a></h4><p>' + post.snip + '...</p>'
+    div.innerHTML = '<h4><a href=#/' + post.id + '>' + post.title + '</a></h4><p>' + post.snip + '...</p>'
     results.appendChild(div)
   })
   

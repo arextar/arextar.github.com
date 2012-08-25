@@ -11,3 +11,13 @@ exports.sorted_posts = function (posts) {
   
   return sorted_posts
 }
+
+exports.searchable = function (posts) {
+  return posts.map(function (post) {
+    return {
+      id: post.id,
+      title: post.meta.title,
+      snip: post.blurb
+    }
+  })
+}

@@ -1,1 +1,115 @@
-(function(a){function d(a){var b=document.createElement("iframe"),d=this.__queue=[],e=this;b.style.display="none",b.src=c.src.replace(/\/[^\/]+$/,"")+"/wrench.html",b.onload=function(){var c=document.createElement("script");c.src=location.href.replace(/\/[^\/]+$/,"")+a,b.contentDocument.body.appendChild(c),c.onreadystatechange=c.onload=function(){if(!c.readyState||c.readyState==="complete"||c.readyState==="done"){var a=e.__self=b.contentWindow.self;for(var f=0;f<d.length;f++)a.onmessage({data:d[f]});var g=a.__queue;for(f=0;f<g.length;f++)e.onmessage({data:g[f]});a.postMessage=b.contentWindow.postMessage=function(a){e.onmessage({data:a})}}}},document.body.appendChild(b)}function g(a){var b=this;this.worker=a,this.events={},this.fns={},a.onmessage=function(a){b._handleMessage(a.data)}}function h(a,b){return function(){b.emit("__call",a,f.call(arguments))}}var b=window.wrench={init:function(b){return a?new g(new a(b)):new g(new d(b))}},c=document.getElementsByTagName("script");c=c[c.length-1],d.prototype.postMessage=function(a){this.__self?this.__self.onmessage({data:a}):this.__queue.push(a)};var e=1,f=[].slice;g.prototype._decodeArgs=function(a){for(var b=0;b<a.length;b++)typeof a[b]=="string"&&/^__wrenchFunction/.test(a[b])&&(a[b]=h(a[b],this));return a},g.prototype._encodeArgs=function(a){for(var b=0;b<a.length;b++)if(typeof a[b]=="function"){var c="__wrenchFunction"+e++;this.fns[c]=a[b],a[b]=c}return a},g.prototype._handleMessage=function(a){if(a.type==="__call"){this.fns[a.args[0]].apply(this,a.args[1]);return}var b=this.events[a.type];if(!b)return;var c=this._decodeArgs(a.args);if(typeof b=="function")return b.apply(this,c);for(var d=0;d<b.length;d++)b[d].apply(this,c)},g.prototype.emit=function(a,b,c){var d=arguments.length;this.worker.postMessage({type:a,args:this._encodeArgs(d<2?[]:d<3?[b]:d<4?[b,c]:f.call(arguments,1))})},g.prototype.on=function(a,b){var c=this.events,d=typeof c[a];d==="undefined"?c[a]=b:d==="function"?c[a]=[c[a],b]:c[a].push(b)}})(typeof Worker=="function"?Worker:!1);
+;(function (NativeWorker) {
+  var wrench = window.wrench = {
+    init: function (url) {
+      return new Worker(new (NativeWorker || FakeWorker)(url))
+    }
+  }
+  
+  var this_script = document.getElementsByTagName('script')
+  this_script = this_script[this_script.length - 1]
+  
+  function FakeWorker (src) {
+    var iframe = document.createElement('iframe'), messages = this.__queue = [], that = this
+    iframe.style.display = 'none'
+    iframe.src = this_script.src.replace(/\/[^\/]+$/, '') + '/wrench.html'
+    iframe.onload = function () {
+      var script = document.createElement('script')
+      script.src = location.href.replace(/\/[^\/]+$/, '') + src
+      iframe.contentDocument.body.appendChild(script)
+      
+      script.onreadystatechange = script.onload = function () {
+        if (!script.readyState || script.readyState === 'complete' || script.readyState === 'done') {
+          var self = that.__self = iframe.contentWindow.self
+          var queue = self.__queue
+          for (var i = 0; i < messages.length; i++) self.onmessage({data: messages[i]})
+          for (i = 0; i < queue.length; i++) that.onmessage({data: queue[i]})
+          
+          self.postMessage = iframe.contentWindow.postMessage = function (msg) {
+            that.onmessage({data: msg})
+          }
+        }
+      }
+    }
+    document.body.appendChild(iframe)
+  }
+  
+  FakeWorker.prototype.postMessage = function (msg) {
+    if (this.__self) this.__self.onmessage({data: msg})
+    else this.__queue.push(msg)
+  }
+  
+  var uid = 1, __slice = [].slice
+  
+  function Worker (worker) {
+    var that = this
+    this.worker = worker
+    this.events = {}
+    this.fns = {}
+    worker.onmessage = function (e) {
+      that._handleMessage(e.data)
+    }
+  }
+  
+  function makeRemoteFunction (id, worker) {
+    return function () {
+      worker.emit('__call', id, __slice.call(arguments))
+    }
+  }
+  
+  Worker.prototype._decodeArgs = function (args) {
+    for (var i = 0; i < args.length; i++) {
+      if (typeof args[i] === 'string' && /^__wrenchFunction/.test(args[i])) {
+        args[i] = makeRemoteFunction(args[i], this)
+      }
+    }
+    return args
+  }
+  
+  Worker.prototype._encodeArgs = function (args) {
+    for (var i = 0; i < args.length; i++) {
+      if (typeof args[i] === 'function') {
+        var id = '__wrenchFunction' + (uid++)
+        this.fns[id] = args[i]
+        args[i] = id
+      }
+    }
+    return args
+  }
+  
+  Worker.prototype._handleMessage = function (data) {
+    if (typeof data === 'string') data = JSON.parse(data)
+    if (data.type === '__call') {
+      this.fns[data.args[0]].apply(this, data.args[1])
+      return;
+    }
+    if (data.type === '__log') {
+      if (window.console) console.log.apply(console, data.args)
+      return;
+    }
+    
+    var handlers = this.events[data.type]
+    if (!handlers) return
+    var args = this._decodeArgs(data.args)
+    
+    if (typeof handlers === 'function') return handlers.apply(this, args)
+    for (var i = 0; i < handlers.length; i++) handlers[i].apply(this,  args)
+  }
+  
+  Worker.prototype.emit = function (type, a, b) {
+    var len = arguments.length
+    this.worker.postMessage({type: type, args: len < 2 ? [] : this._encodeArgs(len < 3 ? [a] : len < 4 ? [a, b] : __slice.call(arguments, 1))})
+  }
+  
+  Worker.prototype.on = function (type, fn) {
+    var events = this.events, cur = typeof events[type]
+    if (cur === 'undefined') events[type] = fn
+    else if (cur === 'function') events[type] = [events[type], fn]
+    else events[type].push(fn)
+  }
+  
+  Worker.prototype.log = function (a, b) {
+    var len = arguments.length
+    this.worker.postMessage({type: '__log', args: len < 1 ? [] : len < 2 ? [a] : len < 3 ? [a, b] : __slice.call(arguments)})
+  }
+  
+}(typeof Worker !== 'undefined' ? Worker : false))

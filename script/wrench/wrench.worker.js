@@ -1,1 +1,149 @@
-(function(a){function e(a){var b=this;this.worker=a,this.events={},this.fns={},a.onmessage=function(a){b._handleMessage(a.data)}}function f(a,b){return function(){b.emit("__call",a,d.call(arguments))}}var b=this.wrench=new e(self),c=1,d=[].slice;e.prototype._decodeArgs=function(a){for(var b=0;b<a.length;b++)typeof a[b]=="string"&&/^__wrenchFunction/.test(a[b])&&(a[b]=f(a[b],this));return a},e.prototype._encodeArgs=function(a){for(var b=0;b<a.length;b++)if(typeof a[b]=="function"){var d="__wrenchFunction"+c++;this.fns[d]=a[b],a[b]=d}return a},e.prototype._handleMessage=function(a){if(a.type==="__call"){this.fns[a.args[0]].apply(this,a.args[1]);return}var b=this.events[a.type];if(!b)return;var c=this._decodeArgs(a.args);if(typeof b=="function")return b.apply(this,c);for(var d=0;d<b.length;d++)b[d].apply(this,c)},e.prototype.emit=function(a,b,c){var e=arguments.length;this.worker.postMessage({type:a,args:this._encodeArgs(e<2?[]:e<3?[b]:e<4?[b,c]:d.call(arguments,1))})},e.prototype.on=function(a,b){var c=this.events,d=typeof c[a];d==="undefined"?c[a]=b:d==="function"?c[a]=[c[a],b]:c[a].push(b)};var g=Function.prototype.bind||function(){};b.each=function(b,c,d){if(a){for(var e=0;e<b.length;e++)c(b[e],e,b);d&&d()}else{for(var e=0;e<b.length;e++)setTimeout(g.call(c,null,b[e],e,b),1);d&&setTimeout(d,1)}},b.filter=function(a,c,d){var e=[],f=0;b.each(a,function(b,d){c(b,d,a)&&(e[f++]=b)},function(){d&&d(e)})},b.get=function(a,b,c){typeof b=="function"&&(c=b,b="text");var d=new XMLHttpRequest("GET",a);d.onreadystatechange=function(){if(d.readyState===4){var a=d.responseText;d=null,b==="json"&&(a=JSON.parse(a)),c(a)}}}})(typeof window=="undefined");
+;(function (sync) {
+  var wrench = this.wrench = new Worker(self)
+  
+  var uid = 1, __slice = [].slice
+  
+  function Worker (worker) {
+    var that = this
+    this.worker = worker
+    this.events = {}
+    this.fns = {}
+    worker.onmessage = function (e) {
+      that._handleMessage(e.data)
+    }
+  }
+  
+  function makeRemoteFunction (id, worker) {
+    return function () {
+      worker.emit('__call', id, __slice.call(arguments))
+    }
+  }
+  
+  Worker.prototype._decodeArgs = function (args) {
+    for (var i = 0; i < args.length; i++) {
+      if (typeof args[i] === 'string' && /^__wrenchFunction/.test(args[i])) {
+        args[i] = makeRemoteFunction(args[i], this)
+      }
+    }
+    return args
+  }
+  
+  Worker.prototype._encodeArgs = function (args) {
+    for (var i = 0; i < args.length; i++) {
+      if (typeof args[i] === 'function') {
+        var id = '__wrenchFunction' + (uid++)
+        this.fns[id] = args[i]
+        args[i] = id
+      }
+    }
+    return args
+  }
+  
+  Worker.prototype._handleMessage = function (data) {
+    if (typeof data === 'string') data = JSON.parse(data)
+    if (data.type === '__call') {
+      this.fns[data.args[0]].apply(this, data.args[1])
+      return;
+    }
+    if (data.type === '__log') {
+      if (window.console) console.log.apply(console, data.args)
+      return;
+    }
+    
+    var handlers = this.events[data.type]
+    if (!handlers) return
+    var args = this._decodeArgs(data.args)
+    
+    if (typeof handlers === 'function') return handlers.apply(this, args)
+    for (var i = 0; i < handlers.length; i++) handlers[i].apply(this,  args)
+  }
+  
+  Worker.prototype.emit = function (type, a, b) {
+    var len = arguments.length
+    this.worker.postMessage({type: type, args: len < 2 ? [] : this._encodeArgs(len < 3 ? [a] : len < 4 ? [a, b] : __slice.call(arguments, 1))})
+  }
+  
+  Worker.prototype.on = function (type, fn) {
+    var events = this.events, cur = typeof events[type]
+    if (cur === 'undefined') events[type] = fn
+    else if (cur === 'function') events[type] = [events[type], fn]
+    else events[type].push(fn)
+  }
+  
+  Worker.prototype.log = function (a, b) {
+    var len = arguments.length
+    this.worker.postMessage({type: '__log', args: len < 1 ? [] : len < 2 ? [a] : len < 3 ? [a, b] : __slice.call(arguments)})
+  }
+  
+  // Utility functions
+  var __bind = Function.prototype.bind || function (context, a, b) {
+    var fn = this, len = arguments.length, args = len < 2 ? [] : len < 3 ? [a] : len < 4 ? [a, b] : __slice.call(arguments, 1)
+    return function () {
+      fn.apply(context, args.concat(__slice.call(arguments)))
+    }
+  }
+  
+  wrench.each = function (array, each, callback) {
+    if (sync) {
+      for (var i = 0; i < array.length; i++) each(array[i], i, array)
+      if (callback) callback()
+    }
+    else
+    {
+      for (var i = 0; i < array.length; i++) setTimeout(__bind.call(each, null, array[i], i, array), 1)
+      if (callback) setTimeout(callback, 1)
+    }
+  }
+  
+  wrench.eachAsync = function (array, each, callback) {
+    if (sync) {
+      for (var i = 0, done = 1; i < array.length; i++) each(array[i], function () {
+        done++
+        if (done === array.length) callback()
+      }, i, array)
+    }
+    else
+    {
+      for (var i = 0, done = 1; i < array.length; i++) setTimeout(__bind.call(each, null, array[i], function () {
+        done++
+        if (done === array.length) callback()
+      }, i, array), 1)
+    }
+  }
+  
+  wrench.filter = function (array, filter, callback) {
+    var ret = [], i = 0
+    wrench.each(array, function (value, index) {
+      if (filter(value, index, array)) ret[i++] = value
+    }, function () {
+      if (callback) callback(ret)
+    })
+  }
+  
+  wrench.map = function (array, map, callback) {
+    var ret = []
+    wrench.each(array, function (value, index) {
+      ret[index] = map(value, index, array)
+    }, function () {
+      if (callback) callback(ret)
+    })
+  }
+  
+  wrench.get = function (url, type, callback) {
+    if (typeof type === 'function') {
+      callback = type
+      type = 'text'
+    }
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', url)
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        var res = xhr.responseText
+        xhr = null
+        if (type === 'json') res = JSON.parse(res)
+        callback(res)
+      }
+    }
+    xhr.send()
+  }
+}(typeof window === 'undefined'))

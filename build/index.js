@@ -22,5 +22,7 @@ fs.readdir(posts, function (err, dir) {
     })
     
     fs.writeFile(__dirname + '/../index.html', tmpl({full: false, blog: blog}))
+    
+    fs.writeFile(__dirname + '/../data/search.json', JSON.stringify(compile_posts.searchable(sorted_posts)))
   })
 })
