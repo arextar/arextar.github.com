@@ -1,1 +1,1 @@
-[{"id":"first-post","title":"First Post","snip":"This is the first post on this blog."},{"id":"example-post","title":"Example Post","snip":"Lorem ipsum dolor sit amet, consectetur adipiscing elit."}]
+[{"id":"first-post","tags":"first post blog opensource","title":"First Post","snip":"This is the first post on this blog."},{"id":"example-post","title":"Example Post","snip":"Lorem ipsum dolor sit amet, consectetur adipiscing elit."}]

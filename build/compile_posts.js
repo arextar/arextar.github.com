@@ -16,6 +16,7 @@ exports.searchable = function (posts) {
   return posts.map(function (post) {
     return {
       id: post.id,
+      tags: post.meta.tags,
       title: post.meta.title,
       snip: post.blurb
     }

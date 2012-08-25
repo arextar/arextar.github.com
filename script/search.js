@@ -60,21 +60,16 @@ function get (src, type, fn) {
 wrench.on('search', function (query) {
   get('../data/search.json', 'json', function (posts) {
     query = RegExp(query, 'i')
-    wrench.eachAsync(posts, function (post, cb) {
-      if(query.test(post.title)) {
+    wrench.each(posts, function (post) {
+      if (query.test(post.title)) {
         wrench.emit('populate', post)
-        cb()
       }
       else if (query.test(post.snip)) {
         wrench.emit('populate', post)
-        cb()
       }
-      else
+      else if (query.test(post.tags))
       {
-        get('../posts/' + post.id + '.markdown', function (txt) {
-          if (query.test(txt)) wrench.emit('populate', post)
-          cb()
-        })
+        wrench.emit('populate', post)
       }
     }, function () {
       wrench.emit('done')

@@ -24,7 +24,7 @@ function parse_meta (str) {
   return ret
 }
 
-function parse (fname, cb) {
+function parse (fname, blog, cb) {
   var txt = fs.readFileSync(fname, 'utf8')
   txt = txt.split('\n\n')
   var meta = parse_meta(txt.shift()), images = []

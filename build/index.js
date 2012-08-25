@@ -11,16 +11,17 @@ var posts = __dirname + '/../posts/'
 
 fs.readdir(posts, function (err, dir) {
   async.forEach(dir, function (fname, cb) {
-    parse_post.parse(posts + fname, cb)
+    parse_post.parse(posts + fname, blog, cb)
   }, function () {
     var sorted_posts = compile_posts.sorted_posts(parse_post.posts)
     
-    blog.posts = sorted_posts
     
     sorted_posts.forEach(function (post) {
-      fs.writeFile(__dirname + '/../posts/' + post.id + '.html', post_tmpl({full: true, post: post}))
+      blog.posts = [post]
+      fs.writeFile(__dirname + '/../' + post.id + '.html', tmpl({full: true, blog: blog}))
     })
     
+    blog.posts = sorted_posts
     fs.writeFile(__dirname + '/../index.html', tmpl({full: false, blog: blog}))
     
     fs.writeFile(__dirname + '/../data/search.json', JSON.stringify(compile_posts.searchable(sorted_posts)))
