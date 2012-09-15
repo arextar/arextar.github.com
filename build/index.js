@@ -2,6 +2,7 @@ var parse_post = require('./parse_post')
 var async = require('async')
 var compile_posts = require('./compile_posts')
 var jade = require('jade')
+var uglify = require('uglify-js')
 var fs = require('fs')
 var tmpl = jade.compile(fs.readFileSync(__dirname + '/../templates/layout.jade', 'utf8'), {filename: __dirname + '/../templates/layout.jade'})
 var post_tmpl = jade.compile(fs.readFileSync(__dirname + '/../templates/post.jade', 'utf8'))
@@ -30,8 +31,13 @@ fs.readdir(posts, function (err, dir) {
 })
 
 fs.readFile(__dirname + '/../style/style.css', 'utf8', function (err, style) {
-  console.log('compressing style...')
   fs.writeFile(__dirname + '/../style/style.min.css',
     style.replace(/\s*([;:\{\}])\s*/g, '$1')
   )
+})
+
+;['script', 'search', 'wrench/wrench', 'wrench/wrench.worker'].forEach(function (name) {
+  fs.readFile(__dirname + '/../script/' + name + '.js', 'utf8', function (err, script) {
+    fs.writeFile(__dirname + '/../script/' + name + '.min.js', uglify(script))
+  })
 })

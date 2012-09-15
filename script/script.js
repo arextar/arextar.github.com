@@ -3,7 +3,7 @@
   var results = document.getElementById('results')
   var search_input = search.firstChild
   var loading = search.childNodes[1]
-  var search_worker = wrench.init('script/search.js')
+  var search_worker = wrench.init('script/search.min.js')
   var old_value
   
   loading.style.visibility = 'hidden'

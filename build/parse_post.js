@@ -1,6 +1,7 @@
 var marked = require('marked')
 var async = require('async')
 var im = require('imagemagick');
+var cp = require('child_process')
 var http = require('http')
 var fs = require('fs')
 var posts = exports.posts = {}
@@ -47,15 +48,27 @@ function parse (fname, blog, cb) {
     }
     
     http.get(item.url, function (res) {
+      console.log(res.headers, item.url)
       var _name = __dirname + '/temp_img' + img_data.uid
       var stream = fs.createWriteStream(_name)
       res.pipe(stream)
       
       res.on('end', function () {
         im.identify(_name, function(err, features){
+          console.log(err, item)
           var img = 'image' + (img_data.uid++) + '.' + ext[features.format]
           var read = fs.createReadStream(_name)
-          read.pipe(fs.createWriteStream(__dirname + '/../images/' + img))
+          
+          if (features.format === 'GIF') {
+            var optim = cp.spawn('gifsicle', ['-O'])
+            read.pipe(optim.stdin)
+            optim.stdout.pipe(fs.createWriteStream(__dirname + '/../images/' + img))
+          }
+          else if (features.format === 'PNG') {
+            read.pipe(fs.createWriteStream(__dirname + '/../images/' + img))
+            cp.spawn('optipng', ['-o7', __dirname + '/../images/' + img])
+          }
+          
           read.on('end', function () {
             fs.unlink(_name)
           })
