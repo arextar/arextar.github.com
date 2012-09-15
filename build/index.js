@@ -7,6 +7,8 @@ var tmpl = jade.compile(fs.readFileSync(__dirname + '/../templates/layout.jade',
 var post_tmpl = jade.compile(fs.readFileSync(__dirname + '/../templates/post.jade', 'utf8'))
 var blog = JSON.parse(fs.readFileSync(__dirname + '/../data.json', 'utf8'))
 
+blog.links.reverse()
+
 var posts = __dirname + '/../posts/'
 
 fs.readdir(posts, function (err, dir) {
@@ -17,13 +19,19 @@ fs.readdir(posts, function (err, dir) {
     
     
     sorted_posts.forEach(function (post) {
-      blog.posts = [post]
-      fs.writeFile(__dirname + '/../' + post.id + '.html', tmpl({full: true, blog: blog}))
+      console.log('saving ' + post.id + '...')
+      fs.writeFile(__dirname + '/../' + post.id + '.html', tmpl({full: true, blog: blog, posts: [post]}))
     })
     
-    blog.posts = sorted_posts
-    fs.writeFile(__dirname + '/../index.html', tmpl({full: false, blog: blog}))
+    fs.writeFile(__dirname + '/../index.html', tmpl({full: false, blog: blog, posts: sorted_posts}))
     
     fs.writeFile(__dirname + '/../data/search.json', JSON.stringify(compile_posts.searchable(sorted_posts)))
   })
+})
+
+fs.readFile(__dirname + '/../style/style.css', 'utf8', function (err, style) {
+  console.log('compressing style...')
+  fs.writeFile(__dirname + '/../style/style.min.css',
+    style.replace(/\s*([;:\{\}])\s*/g, '$1')
+  )
 })
