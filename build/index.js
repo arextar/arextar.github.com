@@ -13,22 +13,38 @@ blog.links.reverse()
 var posts = __dirname + '/../posts/'
 
 fs.readdir(posts, function (err, dir) {
-  async.forEach(dir, function (fname, cb) {
+  async.map(dir, function (fname, cb) {
     parse_post.parse(posts + fname, blog, cb)
-  }, function () {
-    var sorted_posts = compile_posts.sorted_posts(parse_post.posts)
-    
+  }, function (err, sorted_posts) {
+    sorted_posts.sort(function (a, b) {
+      return +new Date(b.meta.date) - +new Date(a.meta.date)
+    })
     
     sorted_posts.forEach(function (post) {
-      console.log('saving ' + post.id + '...')
+      console.log('saving post ' + post.id + '...')
       fs.writeFile(__dirname + '/../' + post.id + '.html', tmpl({full: true, blog: blog, posts: [post]}))
     })
     
     fs.writeFile(__dirname + '/../index.html', tmpl({full: false, blog: blog, posts: sorted_posts}))
     
     fs.writeFile(__dirname + '/../data/search.json', JSON.stringify(compile_posts.searchable(sorted_posts)))
+    pages()
   })
 })
+
+function pages () {
+  fs.readdir(__dirname + '/../pages/', function (err, dir) {
+    async.map(dir, function (fname, cb) {
+      parse_post.parse(__dirname + '/../pages/' + fname, blog, cb)
+    }, function (err, pages) {
+      pages.forEach(function (page) {
+        console.log('saving page ' + page.id + '...')
+        fs.writeFile(__dirname + '/../' + page.id + '.html', tmpl({full: true, blog: blog, posts: [page]}))
+      })
+      
+    })
+  })
+}
 
 fs.readFile(__dirname + '/../style/style.css', 'utf8', function (err, style) {
   fs.writeFile(__dirname + '/../style/style.min.css',

@@ -25,6 +25,51 @@ function parse_meta (str) {
   return ret
 }
 
+function optimize (item, callback) {
+  var url = item.url
+  if (img_data.hasOwnProperty(url)) {
+    item.fname = img_data[url].fname
+    item.width = img_data[url].width
+    item.height = img_data[url].height
+    callback()
+    return;
+  }
+  
+  console.log('GET', url)
+  http.get(url, function (res) {
+    var _name = __dirname + '/temp_img' + img_data.uid
+    var stream = fs.createWriteStream(_name)
+    res.pipe(stream)
+    
+    res.on('end', function () {
+      im.identify(_name, function(err, features){
+        var img = 'image' + (img_data.uid++) + '.' + ext[features.format]
+        var read = fs.createReadStream(_name)
+        
+        if (features.format === 'GIF') {
+          var optim = cp.spawn('gifsicle', ['-O'])
+          read.pipe(optim.stdin)
+          optim.stdout.pipe(fs.createWriteStream(__dirname + '/../images/' + img))
+        }
+        else if (features.format === 'PNG') {
+          read.pipe(fs.createWriteStream(__dirname + '/../images/' + img))
+          cp.spawn('optipng', ['-o7', __dirname + '/../images/' + img])
+        }
+        
+        read.on('end', function () {
+          fs.unlink(_name)
+        })
+        item.fname = img
+        item.width = features.width
+        item.height = features.height
+        callback()
+        img_data[url] = item
+        fs.writeFileSync(__dirname + '/../images/data.json', JSON.stringify(img_data))
+      })
+    })
+  })
+}
+
 function parse (fname, blog, cb) {
   var txt = fs.readFileSync(fname, 'utf8')
   txt = txt.split('\n\n')
@@ -35,53 +80,7 @@ function parse (fname, blog, cb) {
     images.push({alt: alt, url: url})
   })
   
-  async.forEach(images, function (item, callback) {
-    
-    if (img_data.hasOwnProperty(item.url)) {
-      
-      item.fname = img_data[item.url].fname
-      item.width = img_data[item.url].width
-      item.height = img_data[item.url].height
-      
-      callback()
-      return;
-    }
-    
-    http.get(item.url, function (res) {
-      console.log(res.headers, item.url)
-      var _name = __dirname + '/temp_img' + img_data.uid
-      var stream = fs.createWriteStream(_name)
-      res.pipe(stream)
-      
-      res.on('end', function () {
-        im.identify(_name, function(err, features){
-          console.log(err, item)
-          var img = 'image' + (img_data.uid++) + '.' + ext[features.format]
-          var read = fs.createReadStream(_name)
-          
-          if (features.format === 'GIF') {
-            var optim = cp.spawn('gifsicle', ['-O'])
-            read.pipe(optim.stdin)
-            optim.stdout.pipe(fs.createWriteStream(__dirname + '/../images/' + img))
-          }
-          else if (features.format === 'PNG') {
-            read.pipe(fs.createWriteStream(__dirname + '/../images/' + img))
-            cp.spawn('optipng', ['-o7', __dirname + '/../images/' + img])
-          }
-          
-          read.on('end', function () {
-            fs.unlink(_name)
-          })
-          item.fname = img
-          item.width = features.width
-          item.height = features.height
-          callback()
-          img_data[item.url] = item
-          fs.writeFileSync(__dirname + '/../images/data.json', JSON.stringify(img_data))
-        })
-      })
-    })
-  }, function () {
+  async.forEach(images, optimize, function () {
     var i = 0
      txt = txt.replace(/!\[([^\]]+)\]\(([^\)]+)\)/g, function (_, alt, url) {
       var item = images[i++]
@@ -92,13 +91,13 @@ function parse (fname, blog, cb) {
      
      txt = txt.split('\n---\n')
     var peek = txt[0].split('<blurb>')
-    posts[/([\w_-]+)\.\w+$/.exec(fname)[1]] = {
+    cb(null, {
+      id: /([\w_-]+)\.\w+$/.exec(fname)[1],
       meta: meta,
       blurb: peek[0],
-      peek: marked(peek[0] + peek[1]),
-      full: marked(peek[0] + peek[1] + '\n' + txt[1])
-    }
-    cb()
+      peek: marked(peek[0] + (peek[1] || '')),
+      full: marked(peek[0] + (peek[1] || '') + '\n' + (txt[1] || ''))
+    })
   })
 }
 
