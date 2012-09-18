@@ -10,16 +10,16 @@
       }
     },
     {
-      "title": "Social",
-      "links": {
-        "Twitter": "https://twitter.com/arextar"
-      }
-    },
-    {
       "title": "About",
       "links": {
         "This Blog": "/page/this.html",
         "Me": "/page/me.html"
+      }
+    },
+    {
+      "title": "Social",
+      "links": {
+        "Twitter": "https://twitter.com/arextar"
       }
     }
   ]
