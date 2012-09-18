@@ -22,7 +22,7 @@ fs.readdir(posts, function (err, dir) {
     
     sorted_posts.forEach(function (post) {
       console.log('saving post ' + post.id + '...')
-      fs.writeFile(__dirname + '/../' + post.id + '.html', tmpl({full: true, blog: blog, posts: [post]}))
+      fs.writeFile(__dirname + '/../post/' + post.id + '.html', tmpl({full: true, blog: blog, posts: [post]}))
     })
     
     fs.writeFile(__dirname + '/../index.html', tmpl({full: false, blog: blog, posts: sorted_posts}))
@@ -39,7 +39,7 @@ function pages () {
     }, function (err, pages) {
       pages.forEach(function (page) {
         console.log('saving page ' + page.id + '...')
-        fs.writeFile(__dirname + '/../' + page.id + '.html', tmpl({full: true, blog: blog, posts: [page]}))
+        fs.writeFile(__dirname + '/../page/' + page.id + '.html', tmpl({full: true, blog: blog, posts: [page]}))
       })
       
     })

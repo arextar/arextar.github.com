@@ -14,6 +14,13 @@
       "links": {
         "Twitter": "https://twitter.com/arextar"
       }
+    },
+    {
+      "title": "About",
+      "links": {
+        "This blog": "/page/this.html",
+        "Me": "/page/me.html"
+      }
     }
   ]
 }

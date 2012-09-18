@@ -85,7 +85,7 @@ function parse (fname, blog, cb) {
      txt = txt.replace(/!\[([^\]]+)\]\(([^\)]+)\)/g, function (_, alt, url) {
       var item = images[i++]
       return '<div class=center style=width:' + item.width + 'px;height:' + (item.height + 40) + 'px>\
-<img data-src=images/' + item.fname + ' width=' + item.width + ' height=' + item.height + '><p class=caption>' + alt + '</p>\
+<img data-src=/images/' + item.fname + ' width=' + item.width + ' height=' + item.height + '><p class=caption>' + alt + '</p>\
 </div>'
     })
      
