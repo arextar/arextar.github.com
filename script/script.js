@@ -37,6 +37,9 @@
       }
     }
   }
-  check_images()
-  window.onscroll = check_images
+  
+  setTimeout(function () {
+    check_images()
+    window.onscroll = check_images
+  }, 1000)
 }())
