@@ -20,6 +20,8 @@ fs.readdir(posts, function (err, dir) {
       return +new Date(b.meta.date) - +new Date(a.meta.date)
     })
     
+    blog.posts = sorted_posts
+    
     sorted_posts.forEach(function (post) {
       console.log('saving post ' + post.id + '...')
       fs.writeFile(__dirname + '/../post/' + post.id + '.html', tmpl({full: true, blog: blog, posts: [post]}))

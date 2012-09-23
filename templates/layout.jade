@@ -25,7 +25,7 @@ html(lang="en")
         #results
       #archive
         h4.bigh4 Recent posts
-        each post in posts
+        each post in blog.posts.slice(0, 5)
           .result
             h4
               a(href='/post/' + post.id + '.html')= post.meta.title
