@@ -35,6 +35,10 @@ margin:0;
 font-family: 'Source Sans Pro', sans-serif;
 }
 
+.bigh4 {
+font-size:1.2em;
+}
+
 h4 {
 color: black
 }
@@ -60,13 +64,17 @@ padding: 0 10px;
 margin: 0;
 }
 
-#search {
+#sidebar {
 position:absolute;
+top:86px;
+right:10px;
+z-index:1
+}
+
+#search, #archive {
 padding:10px 3px 3px 3px;
-top: 86px;
-right: 10px;
-z-index: 1;
 width: 258px;
+margin-bottom:10px;
 }
 
 #search.stuck {
@@ -93,6 +101,10 @@ overflow: auto;
 -webkit-transition:height .6s;
 }
 
+.result {
+margin-left:10px;
+}
+
 #search input:focus ~ #results {
 height: 500px;
 }
@@ -115,12 +127,12 @@ padding: 5px;
 margin-bottom: 10px;
 }
 
-.post p, #search p {
+.post p, #search p, #archive p {
 margin: 2px;
 text-indent:15px;
 }
 
-.post, #search {
+.post, #search, #archive {
 background: #F9F9F9;
 border-radius: 6px;
 border: 1px solid #CDCDCD;

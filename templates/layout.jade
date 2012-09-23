@@ -18,10 +18,18 @@ html(lang="en")
         a(href='/')
           h1= blog.title
         .author Alex Wilson
-    #search
-      input(placeholder='Search...')
-      .loading Loading...
-      #results
+    #sidebar
+      #search
+        input(placeholder='Search...')
+        .loading Loading...
+        #results
+      #archive
+        h4.bigh4 Recent posts
+        each post in posts
+          .result
+            h4
+              a(href='/post/' + post.id + '.html')= post.meta.title
+            p= post.blurb
     #container
       each post in posts
         include post
