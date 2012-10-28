@@ -67,7 +67,7 @@ wrench.on('search', function (query) {
       else if (query.test(post.snip)) {
         wrench.emit('populate', post)
       }
-      else if (query.test(post.tags))
+      else if (post.hasOwnProperty('tags') && query.test(post.tags))
       {
         wrench.emit('populate', post)
       }
