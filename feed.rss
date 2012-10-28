@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?><rss version="2.0"><channel><title>A-Rex</title><link>http://arextar.github.com/</link><lastBuildDate>Sun, 28 Oct 2012 17:50:26 GMT</lastBuildDate><item><title>Binary emitter</title><description><p>I&#39;ve been working on a <a href="https://github.com/arextar/binary_emitter">wrapper that turns binary streams into emitters</a>.
+
+</p>
+<p><br>
+</p>
+<h4>Why?</h4>
+<p>I wanted something I could use in place of socket.io on the <a href="https://github.com/jeremyckahn/pine">Pine</a> project. Because this project will need to be able to send events quickly from browser to node process to node process to browser, I needed something that would not need to parse and rewrite each event. I also wanted to use binary WebSockets because it seemed that they would be faster (and they have proven to be quite fast so far).
+</p>
+</description><link>http://arextar.github.com//post/binary-emitter.html</link><guid>binary-emitter</guid></item><item><title>First Post</title><description><p>This is the first post on this blog. I mostly made this blog as a main website to direct people to so they can find me, but I&#39;m also interested in writing about some of my open source exploits. I built the site and blogging engine behind it from scratch, so it will probably have a few problems as I continue to work on it. I like the idea of putting an unfinished site out there, pushing one to work on it; here it is.</p>
+</description><link>http://arextar.github.com//post/first-post.html</link><guid>first-post</guid></item></channel></rss>

@@ -34,6 +34,16 @@ exports.run = function () {
       })
     })
 
+    var rss = '<?xml version="1.0" encoding="UTF-8" ?><rss version="2.0"><channel><title>' + blog.title + '</title>'
+      + '<link>' + blog.url + '</link>'
+      + '<lastBuildDate>' + (new Date).toUTCString() + '</lastBuildDate>'
+    posts.forEach(function (post) {
+      rss += '<item><title>' + post.meta.title  +'</title><description>' + post.peek + '</description><link>' + blog.url + '/post/' + post.id + '.html</link><guid>' + post.id + '</guid></item>'
+    })
+
+    rss += '</channel></rss>'
+    fs.writeFile(__dirname + '/../feed.rss', rss)
+
   })
 }
 
