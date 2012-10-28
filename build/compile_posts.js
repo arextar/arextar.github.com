@@ -18,7 +18,7 @@ exports.searchable = function (posts) {
       id: post.id,
       tags: post.meta.tags,
       title: post.meta.title,
-      snip: post.blurb
+      snip: post.blurb.replace(/(<([^>]+)>)/ig, '')
     }
   })
 }
