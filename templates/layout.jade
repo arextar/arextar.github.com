@@ -3,6 +3,8 @@ html(lang="en")
   head
     link(href='http://fonts.googleapis.com/css?family=Source+Sans+Pro|Rokkitt:700', rel='stylesheet', type='text/css')
     link(href="/style/style.min.css", rel='stylesheet', type='text/css')
+    link(href="/style/style.big.min.css", rel='stylesheet', type='text/css', media='all and (min-width: 700px)')
+    meta(name = "viewport", content = "width=320", initial-scale = 1)
     title= blog.title
   body
     #header
@@ -23,13 +25,17 @@ html(lang="en")
         input(placeholder='Search...')
         .loading Loading...
         #results
+      if false
+        #buttons
+          h4.bigh4 Like what I do?
+          iframe(style="border: 0; margin: 0; padding: 0;", id="gittip_btn", width="48pt", height="22pt")
       #archive
         h4.bigh4 Recent posts
-        each post in blog.posts.slice(0, 5)
+        each post in posts.slice(0, 5)
           .result
             h4
               a(href='/post/' + post.id + '.html')= post.meta.title
-            p= post.blurb
+            p!= post.blurb
     #container
       each post in posts
         include post

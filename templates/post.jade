@@ -3,3 +3,5 @@
     a(href='/post/' + post.id + '.html')= post.meta.title
     span.date= post.meta.date
   div!= full ? post.full : post.peek
+  if full
+   .suffix!= "Have something to say? <a href=twitter.com/arextar>Tweet me!</a>"
