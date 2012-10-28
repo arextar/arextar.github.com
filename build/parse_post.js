@@ -70,7 +70,7 @@ function optimize (item, callback) {
   })
 }
 
-function parse (fname, blog, cb) {
+function parse (fname, cb) {
   var txt = fs.readFileSync(fname, 'utf8')
   txt = txt.split('\n\n')
   var meta = parse_meta(txt.shift()), images = []
@@ -87,14 +87,14 @@ function parse (fname, blog, cb) {
       return '<div class=center style=width:' + item.width + 'px;height:' + (item.height + 40) + 'px>\
 <img data-src=/images/' + item.fname + ' width=' + item.width + ' height=' + item.height + '><p class=caption>' + alt + '</p>\
 </div>'
-    })
+    }).replace(/\n#/g, '\n<br>\n#')
      
      txt = txt.split('\n---\n')
     var peek = txt[0].split('<blurb>')
     cb(null, {
       id: /([\w_-]+)\.\w+$/.exec(fname)[1],
       meta: meta,
-      blurb: peek[0],
+      blurb: marked(peek[0]),
       peek: marked(peek[0] + (peek[1] || '')),
       full: marked(peek[0] + (peek[1] || '') + '\n' + (txt[1] || ''))
     })
