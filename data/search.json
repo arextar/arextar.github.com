@@ -1,1 +1,1 @@
-[{"id":"first-post","tags":"first post blog opensource","title":"First Post","snip":"This is the first post on this blog."},{"id":"example-post","title":"Example Post","snip":"Lorem ipsum dolor sit amet, consectetur adipiscing elit."}]
+[{"id":"binary-emitter","title":"Binary emitter","snip":"<p>I&#39;ve been working on a <a href=\"https://github.com/arextar/binary_emitter\">wrapper that turns binary streams into emitters</a>.</p>\n"},{"id":"first-post","tags":"first post blog opensource","title":"First Post","snip":"<p>This is the first post on this blog.</p>\n"}]
