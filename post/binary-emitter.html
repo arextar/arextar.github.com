@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro|Rokkitt:700" rel="stylesheet" type="text/css"><link href="/style/style.min.css" rel="stylesheet" type="text/css"><link href="/style/style.big.min.css" rel="stylesheet" type="text/css" media="all and (min-width: 700px)"><meta name="viewport" content="width=320" initial-scale="1"><title>A-Rex</title></head><body><div id="header"><div class="sec"><h3>Social</h3><ul><li><a href="https://twitter.com/arextar">Twitter</a></li></ul></div><div class="sec"><h3>About</h3><ul><li><a href="/page/this.html">This Blog</a></li><li><a href="/page/me.html">Me</a></li></ul></div><div class="sec"><h3>Code</h3><ul><li><a href="https://github.com/arextar">Github</a></li></ul></div><div><a href="/"><h1>A-Rex</h1></a><div class="author">Alex Wilson</div></div></div><div id="sidebar"><div id="search"><input placeholder="Search..."><div class="loading">Loading...</div><div id="results"></div></div><div id="archive"><h4 class="bigh4">Recent posts</h4><div class="result"><h4><a href="/post/binary-emitter.html">Binary emitter</a></h4><p><p>I&#39;ve been working on a <a href="https://github.com/arextar/binary_emitter">wrapper that turns binary streams into emitters</a>.</p>
+</p></div></div></div><div id="container"><div class="post"><h2><a href="/post/binary-emitter.html">Binary emitter</a><span class="date">_</span></h2><div><p>I&#39;ve been working on a <a href="https://github.com/arextar/binary_emitter">wrapper that turns binary streams into emitters</a>.
+
+</p>
+<p><br>
+</p>
+<h4>Why?</h4>
+<p>I wanted something I could use in place of socket.io on the <a href="https://github.com/jeremyckahn/pine">Pine</a> project. Because this project will need to be able to send events quickly from browser to node process to node process to browser, I needed something that would not need to parse and rewrite each event. I also wanted to use binary WebSockets because it seemed that they would be faster (and they have proven to be quite fast so far).
+
+
+</p>
+<p><br>
+</p>
+<h4>How?</h4>
+<p>Currently, the library works by keeping the names of the events paired with numbers, this assignment being sent tot he other end in a packet, to lessen the payload of event triggering. The sent JSON objects are encoded into a <a href="">Buffer</a> or <a href="https://developer.mozilla.org/en-US/docs/JavaScript_typed_arrays">TypedArray</a>, depending on the environment it&#39;s taking place in; I&#39;m still working on making the reading and writing of the objects faster and reliable, but it&#39;s working pretty well so far. WebSockets and node&#39;s native sockets are currently supported. See the project&#39;s <a href="">README</a> for more information on its usage.
+
+</p>
+<p><br>
+</p>
+<h4>Future prospects</h4>
+<p>Like porbably every project ever, this could use a nicer API and some code cleanup. I think it could definitely be useful in the future for projects that use WebSockets, and the object to Buffer/TypedArray parser could be pulled out and made useful in other places as a replacement for native JSON.</p>
+</div><div class="suffix">Have something to say? <a href=twitter.com/arextar>Tweet me!</a></div></div></div></body><script src="/script/script.min.js" async></script></html>
